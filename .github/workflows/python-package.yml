@@ -35,4 +35,14 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --verbose
+        set +e
+        pytest --verbose 2>&1 | tee pytest-results.txt
+        pytest_status=${PIPESTATUS[0]}
+        set -e
+        {
+          echo "## Pytest Results"
+          echo '```text'
+          cat pytest-results.txt
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+        exit "$pytest_status"
